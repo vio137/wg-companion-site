@@ -113,6 +113,10 @@ code{font-family:var(--mono);font-size:.9em;background:rgba(255,255,255,.08);pad
 body.rm.js .reveal{opacity:1;transform:none}
 
 code{overflow-wrap:anywhere}.stage-ctl .btn{flex-shrink:0}.state-text{flex:1;min-width:180px}@media(max-width:520px){.stage-ctl{flex-wrap:wrap}.brand{font-size:14px}.snd{padding:6px 10px}.hero{gap:20px;padding-top:32px}}
+
+.node-icon{fill:none;stroke:#c4d2ef;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.node.on .node-icon{stroke:var(--a)}
+.statusicon[data-state=connecting] .ring{stroke:rgba(69,169,255,.22)}
+.recovery{padding:24px}.recovery label{display:block;font-weight:600;margin-bottom:10px}.recovery select{width:100%;max-width:640px;padding:12px;background:#111b31;border:1px solid #536582;border-radius:10px;color:var(--ink);font:inherit}.recovery option{background:#111b31}.recovery p{color:var(--mut);max-width:54em}.recovery h3{margin:20px 0 4px}.recovery code{color:var(--ink)}
 </style>
 </head>
 <body>
@@ -141,7 +145,7 @@ code{overflow-wrap:anywhere}.stage-ctl .btn{flex-shrink:0}.state-text{flex:1;min
   <div class="hero-copy">
     <p class="eyebrow"><span class="pip" id="heroPip"></span> Preview build v0.1.0 - Windows x64</p>
     <h1>Your Chrome traffic,<br><span class="grad">through your own WireGuard tunnel.</span></h1>
-    <p class="lead">A small Windows companion and a Chrome extension. The companion runs a userspace WireGuard client. The extension sends your normal browser tabs through it. No kernel driver, no remote relay of ours.</p>
+    <p class="lead">A small Windows companion and a Chrome extension. The companion runs a userspace WireGuard client. The extension routes regular-profile TCP proxy traffic through it. No kernel driver, no remote relay of ours.</p>
     <div class="cta">
       <a class="btn primary mag" href="#download" id="ctaDl">Get the preview</a>
       <a class="btn ghost mag" href="#how">See how it works</a>
@@ -159,10 +163,10 @@ code{overflow-wrap:anywhere}.stage-ctl .btn{flex-shrink:0}.state-text{flex:1;min
         <linearGradient id="g1" x1="0" x2="1"><stop offset="0" stop-color="#45e0c8"/><stop offset="1" stop-color="#8b7bff"/></linearGradient>
       </defs>
       <path id="route" d="M60 130 C110 130,140 105,190 105 S290 130,330 130 S430 130,470 130" fill="none" stroke="url(#g1)" stroke-width="2" stroke-dasharray="3 7" opacity=".6"/>
-      <g class="node" data-n="0"><circle cx="60" cy="130" r="26"/><text x="60" y="176" text-anchor="middle">Chrome</text></g>
-      <g class="node" data-n="1"><circle cx="190" cy="105" r="26"/><text x="190" y="151" text-anchor="middle">Extension</text></g>
-      <g class="node" data-n="2"><circle cx="330" cy="130" r="26"/><text x="330" y="176" text-anchor="middle">Companion</text></g>
-      <g class="node" data-n="3"><circle cx="470" cy="130" r="26"/><text x="470" y="176" text-anchor="middle">Your peer</text></g>
+      <g class="node" data-n="0"><circle cx="60" cy="130" r="26"/><path class="node-icon" d="M47 120h26v20H47z M47 126h26 M51 123h1 M55 123h1"/><text x="60" y="176" text-anchor="middle">Chrome</text></g>
+      <g class="node" data-n="1"><circle cx="190" cy="105" r="26"/><path class="node-icon" d="M178 94h9v-4a4 4 0 0 1 8 0v4h7v8h4a4 4 0 0 1 0 8h-4v7h-24z"/><text x="190" y="151" text-anchor="middle">Extension</text></g>
+      <g class="node" data-n="2"><circle cx="330" cy="130" r="26"/><path class="node-icon" d="M318 118h24v10h-24z M318 132h24v10h-24z M322 123h1 M322 137h1 M328 123h9 M328 137h9"/><text x="330" y="176" text-anchor="middle">Companion</text></g>
+      <g class="node" data-n="3"><circle cx="470" cy="130" r="26"/><path class="node-icon" d="M470 116l12 5v9c0 7-6 12-12 15-6-3-12-8-12-15v-9z M464 130l4 4 8-8"/><text x="470" y="176" text-anchor="middle">Your peer</text></g>
       <circle id="pkt" r="6" fill="#fff"/>
     </svg>
     <div class="stage-ctl">
@@ -240,6 +244,22 @@ code{overflow-wrap:anywhere}.stage-ctl .btn{flex-shrink:0}.state-text{flex:1;min
     <article class="card glass tilt"><h3>TCP only</h3><p>Regular browsing over TCP. No arbitrary UDP or SOCKS5 UDP. QUIC/HTTP3 behavior is not exhaustively verified. Incognito is unsupported.</p></article>
     <article class="card glass tilt"><h3>No guarantees</h3><p>No leak-proof claim or speed promise. No system-wide kill switch. Endpoint hostname DNS uses your normal network to bootstrap the tunnel. WebRTC, QUIC and IPv6 are not fully packet-verified.</p></article>
     <article class="card glass tilt"><h3>Your peer, your trust</h3><p>Traffic goes where your config says. Other apps keep their own network path. Any local user can use the loopback SOCKS proxy while it is active. No analytics on this site.</p></article>
+  </div>
+</section>
+
+<section class="sec" id="recovery">
+  <h2>Something not working?</h2>
+  <p class="sub">Choose what you see. These steps are for v0.1.0-preview. They do not change your computer from this website.</p>
+  <div class="recovery glass">
+    <label for="issue">What happened?</label>
+    <select id="issue">
+      <option value="choose">Choose a symptom</option>
+      <option value="blocked">Chrome cannot browse after a companion crash</option>
+      <option value="peer">The popup says Waiting for peer</option>
+      <option value="security">Windows blocks the unsigned program</option>
+      <option value="remove">I want to remove the preview</option>
+    </select>
+    <div id="recoveryAnswer" role="status" aria-live="polite"><p>Select a symptom to see the matching next step.</p></div>
   </div>
 </section>
 
@@ -363,7 +383,7 @@ showPart(0);nodes.forEach(n=>n.classList.remove('on'));
 const S=[
 ['disconnected','Disconnected','Browser traffic goes out normally.','#7d8aa6','<path d="M34 34l28 28M62 34L34 62"/>'],
 ['connecting','Connecting','Handshake with your peer is in progress.','#45a9ff','<path d="M40 48h16"/>'],
-['connected','Connected','Handshake done. Tunnel is passing traffic.','#45e0c8','<path d="M32 50l11 11 22-24"/>'],
+['connected','Connected','A handshake proves protocol connectivity, not that every request works.','#45e0c8','<path d="M32 50l11 11 22-24"/>'],
 ['blocked','Blocked','Tunnel down. Browser traffic is held rather than sent in the clear.','#ffb86b','<path d="M48 30v22M48 64v2"/>'],
 ['error','Error','Something failed. The popup shows the reason.','#ff6b8a','<path d="M48 30v22M48 64v2"/>']];
 const pick=$('#picker'),ic=$('#sIcon');
@@ -385,6 +405,15 @@ const sty=document.createElement('style');sty.textContent='.statusicon.still .ar
 /* ---- copy buttons ---- */
 $$('.copy').forEach(b=>b.addEventListener('click',async()=>{
   try{await navigator.clipboard.writeText(b.dataset.copy);toast('Copied. Paste it in a new Chrome tab.')}catch(e){toast('Select and copy: '+b.dataset.copy)}blip(600,.06)}));
+
+/* Keep recovery advice scoped to the shipped preview; never alter user settings here. */
+const recovery={
+  blocked:['Turn off the extension tunnel','Open the popup and choose <strong>Turn off</strong>. This clears this extension\'s proxy/privacy overrides. If the popup is unavailable, disable or remove the extension in <code>chrome://extensions</code>. Do not change or delete an organization\'s proxy policy. Other VPNs or policies may still apply.'],
+  peer:['A ready device is not a connected peer','The preview only says Connected after a WireGuard handshake. Waiting for peer means that handshake is not complete. Check your supplied endpoint and profile with the peer operator. No public Internet or Windows runtime test is claimed for this build. A handshake alone is not proof that every request works.'],
+  security:['Keep Windows security enabled','The preview is unsigned. Do not disable SmartScreen, antivirus or organization policy to run it. If your policy blocks it, stop that installation and report what it says. A signed or independently verified Windows build is not available here yet.'],
+  remove:['Turn off, remove, then uninstall','Choose <strong>Turn off</strong> in the popup, remove the extension from <code>chrome://extensions</code>, close Chrome, then run <code>Uninstall.cmd</code>. Encrypted profiles remain under <code>%APPDATA%\\wg-companion\\configs</code> deliberately. Delete that folder only if you also want to erase saved profiles. Original imported files stay where you put them.']
+};
+$('#issue').addEventListener('change',e=>{const d=recovery[e.target.value];$('#recoveryAnswer').innerHTML=d?`<h3>${d[0]}</h3><p>${d[1]}</p>`:'<p>Select a symptom to see the matching next step.</p>';blip(460,.08)});
 
 /* ---- reveal on scroll ---- */
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.12});
