@@ -207,15 +207,14 @@ code{overflow-wrap:anywhere}.stage-ctl .btn{flex-shrink:0}.state-text{flex:1;min
 
 <section class="sec" id="install">
   <h2>Install the preview</h2>
-  <p class="sub">Current preview uses a script installer and an unpacked extension. A proper Windows installer and background service are in development and are not available yet.</p>
+  <p class="sub">Current preview uses Install.cmd and an unpacked extension. A proper Windows installer and background service are in development and are not available yet.</p>
   <ol class="steps" id="steps">
     <li class="step glass"><span class="num">1</span><div><h3>Get the ZIP</h3><p>Download <code>WireGuard-Companion-Windows-x64-preview.zip</code> from the release page, then extract it to a folder you will keep.</p></div></li>
-    <li class="step glass"><span class="num">2</span><div><h3>Run the companion installer</h3><p>Open the extracted folder and run <code>Install.cmd</code>. Follow the README included in the ZIP for the required order and any extension ID registration.</p></div></li>
-    <li class="step glass"><span class="num">3</span><div><h3>Load the extension in Chrome</h3><p>Open <code>chrome://extensions</code>, turn on <strong>Developer mode</strong>, choose <strong>Load unpacked</strong>, and select the <code>extension</code> folder from the ZIP.</p>
-      <button class="copy" data-copy="chrome://extensions">Copy chrome://extensions</button></div></li>
-    <li class="step glass"><span class="num">4</span><div><h3>Add your own WireGuard config</h3><p>Use a config for a peer you control or trust. Follow the included README to import it and connect. Only a regular Chrome profile is in scope; incognito is not.</p></div></li>
+    <li class="step glass"><span class="num">2</span><div><h3>Install for your Windows user</h3><p>Run <code>Install.cmd</code> from the extracted folder. It copies the programs and extension into <code>%LOCALAPPDATA%\WireGuardCompanion</code> and registers the native host. No administrator access needed. Close Chrome before updating.</p></div></li>
+    <li class="step glass"><span class="num">3</span><div><h3>Load the installed extension</h3><p>Open <code>chrome://extensions</code>, turn on <strong>Developer mode</strong>, choose <strong>Load unpacked</strong>, and select <code>%LOCALAPPDATA%\WireGuardCompanion\extension</code>. Pin the extension from Chrome's extension menu.</p><button class="copy" data-copy="chrome://extensions">Copy chrome://extensions</button></div></li>
+    <li class="step glass"><span class="num">4</span><div><h3>Import a profile and connect</h3><p>Open the popup, choose <strong>Add profile</strong>, then import your WireGuard <code>.conf</code>. Select it and click <strong>Connect</strong>. Alternatively, read Cloudflare's linked terms and explicitly agree before Create WARP profile. This optional registration uses unofficial wgcf and has not been live-tested. Chrome must stay open for the tunnel.</p></div></li>
   </ol>
-  <p class="fine">Step details follow the README shipped in the ZIP. If something differs, the README is right.</p>
+  <p class="fine">Unsigned preview: do not disable SmartScreen, antivirus or organization policy. To remove: Turn off in the popup, remove the extension, close Chrome, then run <code>Uninstall.cmd</code>. Saved profiles are retained. Windows installation, storage and routing remain unverified at runtime.</p>
 </section>
 
 <section class="sec" id="download">
@@ -223,8 +222,8 @@ code{overflow-wrap:anywhere}.stage-ctl .btn{flex-shrink:0}.state-text{flex:1;min
   <div class="dl glass">
     <div>
       <h3>Preview v0.1.0 <span class="tag">pre-release</span></h3>
-      <p>Windows x64 ZIP: companion, Chrome extension, source archive.</p>
-      <p class="warn"><strong>Access note.</strong> The repository is currently private, so these links work only when you are signed in to GitHub with access. A public download is not set up yet.</p>
+      <p>Windows x64 ZIP: companion, Chrome extension, source and test evidence. A separate source ZIP is also listed on the release page.</p>
+      <p class="warn"><strong>Access note.</strong> The repository and downloads are public. The current ZIP is an early, unsigned preview, not a verified Windows release.</p>
     </div>
     <div class="dl-btns">
       <a class="btn primary mag" href="https://github.com/vio137/wg-companion/releases/download/v0.1.0-preview/WireGuard-Companion-Windows-x64-preview.zip" rel="noopener">Download ZIP</a>
@@ -238,9 +237,9 @@ code{overflow-wrap:anywhere}.stage-ctl .btn{flex-shrink:0}.state-text{flex:1;min
   <p class="sub">Plain limits, so you can decide.</p>
   <div class="grid">
     <article class="card glass tilt"><h3>Not run on Windows yet</h3><p>Tests so far ran on Linux: real Chromium, a local WireGuard peer, HTTP and DNS through the tunnel, crash blocking and reconnect. The Windows build is cross-compiled only.</p></article>
-    <article class="card glass tilt"><h3>TCP only</h3><p>Regular browsing over TCP. No arbitrary UDP or QUIC, and incognito windows are not routed.</p></article>
-    <article class="card glass tilt"><h3>No guarantees</h3><p>No leak-proof claim and no speed promise. Measure on your own setup.</p></article>
-    <article class="card glass tilt"><h3>Your peer, your trust</h3><p>Traffic goes where your config says. There is no relay run by this project, and no analytics on this site.</p></article>
+    <article class="card glass tilt"><h3>TCP only</h3><p>Regular browsing over TCP. No arbitrary UDP or SOCKS5 UDP. QUIC/HTTP3 behavior is not exhaustively verified. Incognito is unsupported.</p></article>
+    <article class="card glass tilt"><h3>No guarantees</h3><p>No leak-proof claim or speed promise. No system-wide kill switch. Endpoint hostname DNS uses your normal network to bootstrap the tunnel. WebRTC, QUIC and IPv6 are not fully packet-verified.</p></article>
+    <article class="card glass tilt"><h3>Your peer, your trust</h3><p>Traffic goes where your config says. Other apps keep their own network path. Any local user can use the loopback SOCKS proxy while it is active. No analytics on this site.</p></article>
   </div>
 </section>
 
