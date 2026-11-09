@@ -143,14 +143,14 @@ code{overflow-wrap:anywhere}.stage-ctl .btn{flex-shrink:0}.state-text{flex:1;min
 <main id="main">
 <section class="hero" id="top">
   <div class="hero-copy">
-    <p class="eyebrow"><span class="pip" id="heroPip"></span> Preview build v0.1.0 - Windows x64</p>
+    <p class="eyebrow"><span class="pip" id="heroPip"></span> Preview build v0.2.0 - Windows x64</p>
     <h1>Your Chrome traffic,<br><span class="grad">through your own WireGuard tunnel.</span></h1>
     <p class="lead">A small Windows companion and a Chrome extension. The companion runs a userspace WireGuard client. The extension routes regular-profile TCP proxy traffic through it. No kernel driver, no remote relay of ours.</p>
     <div class="cta">
       <a class="btn primary mag" href="#download" id="ctaDl">Get the preview</a>
       <a class="btn ghost mag" href="#how">See how it works</a>
     </div>
-    <p class="fine">Preview. Tested on Linux with a local WireGuard peer; not yet run on real Windows. <a href="#limits">Read the limits</a>.</p>
+    <p class="fine">Preview. Windows service/tunnel CI passed; desktop installation and Chrome end-to-end remain unverified. <a href="#limits">Read the limits</a>.</p>
   </div>
 
   <div class="hero-stage glass tilt" id="stage" aria-label="Interactive tunnel illustration">
@@ -192,7 +192,7 @@ code{overflow-wrap:anywhere}.stage-ctl .btn{flex-shrink:0}.state-text{flex:1;min
 
 <section class="sec" id="states">
   <h2>Status you can read at a glance</h2>
-  <p class="sub">The next Windows app and extension revision is being built with state-driven icons. Explore the proposed visual language here. These are illustrative states, not a view of your connection or a feature claim for the current ZIP.</p>
+  <p class="sub">The service preview includes state icons in the app and extension. Explore the visual states here. These illustrations are not live connection data, actual app screenshots or proof of Windows desktop behavior.</p>
   <div class="states glass">
     <div class="state-picker" role="radiogroup" aria-label="Preview a status state" id="picker"></div>
     <div class="state-view">
@@ -210,37 +210,28 @@ code{overflow-wrap:anywhere}.stage-ctl .btn{flex-shrink:0}.state-text{flex:1;min
 </section>
 
 <section class="sec" id="install">
-  <h2>Install the preview</h2>
-  <p class="sub">Current preview uses Install.cmd and an unpacked extension. A proper Windows installer and background service are in development and are not available yet.</p>
-  <ol class="steps" id="steps">
-    <li class="step glass"><span class="num">1</span><div><h3>Get the ZIP</h3><p>Download <code>WireGuard-Companion-Windows-x64-preview.zip</code> from the release page, then extract it to a folder you will keep.</p></div></li>
-    <li class="step glass"><span class="num">2</span><div><h3>Install for your Windows user</h3><p>Run <code>Install.cmd</code> from the extracted folder. It copies the programs and extension into <code>%LOCALAPPDATA%\WireGuardCompanion</code> and registers the native host. No administrator access needed. Close Chrome before updating.</p></div></li>
-    <li class="step glass"><span class="num">3</span><div><h3>Load the installed extension</h3><p>Open <code>chrome://extensions</code>, turn on <strong>Developer mode</strong>, choose <strong>Load unpacked</strong>, and select <code>%LOCALAPPDATA%\WireGuardCompanion\extension</code>. Pin the extension from Chrome's extension menu.</p><button class="copy" data-copy="chrome://extensions">Copy chrome://extensions</button></div></li>
-    <li class="step glass"><span class="num">4</span><div><h3>Import a profile and connect</h3><p>Open the popup, choose <strong>Add profile</strong>, then import your WireGuard <code>.conf</code>. Select it and click <strong>Connect</strong>. Alternatively, read Cloudflare's linked terms and explicitly agree before Create WARP profile. This optional registration uses unofficial wgcf and has not been live-tested. Chrome must stay open for the tunnel.</p></div></li>
-  </ol>
-  <p class="fine">Unsigned preview: do not disable SmartScreen, antivirus or organization policy. To remove: Turn off in the popup, remove the extension, close Chrome, then run <code>Uninstall.cmd</code>. Saved profiles are retained. Windows installation, storage and routing remain unverified at runtime.</p>
+<h2>Install v0.2.0-preview</h2>
+<p class="sub">An unsigned Windows x64 installer with a LocalService background service, tray and browser-app dashboard. Preview only: do not use for sensitive activity. Interactive installation/removal, alternate-admin UAC and desktop Chrome routing are not verified.</p>
+<ol class="steps" id="steps">
+<li class="step glass"><span class="num">1</span><div><h3>Remove the older preview first</h3><p>Turn off and remove its Chrome extension. For v0.1.0, run its <code>Uninstall.cmd</code>. For another service preview, uninstall it in Windows Apps. Close Chrome. Saved encrypted profiles are retained for the same Windows user; old program files are not migrated.</p></div></li>
+<li class="step glass"><span class="num">2</span><div><h3>Run Setup from your normal desktop</h3><p>Run <code>WireGuard-Companion-Setup-0.2.0-preview-x64.exe</code> from the intended user's interactive desktop. Approve administrator access. Alternate-admin UAC is designed to preserve the desktop user's control identity, but is not yet verified. Headless/session-0 installation fails closed.</p><p>Unsigned preview: do not disable SmartScreen, antivirus or organization policy. If blocked, stop that installation.</p></div></li>
+<li class="step glass"><span class="num">3</span><div><h3>Load the installed Chrome extension</h3><p>Open <code>chrome://extensions</code>, turn on <strong>Developer mode</strong>, choose <strong>Load unpacked</strong>, and select <code>C:\Program Files\WireGuard Companion\extension</code>.</p><button class="copy" data-copy="chrome://extensions">Copy chrome://extensions</button></div></li>
+<li class="step glass"><span class="num">4</span><div><h3>Connect in Chrome to enable routing</h3><p>Choose <strong>Add profile</strong> in Chrome, import your WireGuard <code>.conf</code>, select it and Connect. Optional WARP uses unofficial wgcf: read Cloudflare's linked terms and explicitly agree before registration. No live WARP registration has been tested.</p></div></li>
+<li class="step glass"><span class="num">5</span><div><h3>Understand what runs in the background</h3><p>The service starts with Windows, but does not reconnect automatically after reboot. Open WireGuard Companion from Start for the tray and local dashboard; the tray is not added to startup. Quitting the tray does not stop an active tunnel.</p><p>Dashboard Connect starts the tunnel, <strong>not Chrome's proxy</strong>. Enable routing in Chrome. Dashboard Disconnect can leave Chrome blocked until you choose Turn off in the extension. A running service is not a connected tunnel; Connected requires a peer handshake.</p></div></li>
+</ol>
+<p class="fine">To remove: Turn off in Chrome, remove the extension, quit tray, then uninstall in Windows Apps. Saved profiles remain under <code>%APPDATA%\wg-companion\configs</code>. Original imported files remain where you put them.</p>
 </section>
-
 <section class="sec" id="download">
-  <h2>Download</h2>
-  <div class="dl glass">
-    <div>
-      <h3>Preview v0.1.0 <span class="tag">pre-release</span></h3>
-      <p>Windows x64 ZIP: companion, Chrome extension, source and test evidence. A separate source ZIP is also listed on the release page.</p>
-      <p class="warn"><strong>Access note.</strong> The repository and downloads are public. The current ZIP is an early, unsigned preview, not a verified Windows release.</p>
-    </div>
-    <div class="dl-btns">
-      <a class="btn primary mag" href="https://github.com/vio137/wg-companion/releases/download/v0.1.0-preview/WireGuard-Companion-Windows-x64-preview.zip" rel="noopener">Download ZIP</a>
-      <a class="btn ghost mag" href="https://github.com/vio137/wg-companion/releases/tag/v0.1.0-preview" rel="noopener">Release notes</a>
-    </div>
-  </div>
+<h2>Download</h2>
+<div class="dl glass"><div><h3>v0.2.0-preview <span class="tag">unsigned pre-release</span></h3><p>Windows x64 installer · 7,565,686 bytes. Public download, no sign-in needed.</p><p class="warn">Windows CI validates the service, tunnel and selected security checks. It does not validate the interactive installer, tray, UAC owner targeting or full Windows Chrome flow.</p></div>
+<div class="dl-btns"><a class="btn primary mag" href="https://github.com/vio137/wg-companion/releases/download/v0.2.0-preview/WireGuard-Companion-Setup-0.2.0-preview-x64.exe" rel="noopener">Download installer</a><a class="btn ghost mag" href="https://github.com/vio137/wg-companion/releases/tag/v0.2.0-preview" rel="noopener">Release notes</a></div>
+<p class="fine">SHA-256: <code>48d7244d71f70e06a6631e741ab271dcfaf8e76874216a25e2d82e375c462a51</code><br><a href="https://github.com/vio137/wg-companion/releases/download/v0.2.0-preview/SHA256SUMS-0.2.0-preview.txt">Checksums</a> · <a href="https://github.com/vio137/wg-companion/releases/download/v0.2.0-preview/wg-companion-0.2.0-preview-source.zip">Source ZIP</a> · <a href="https://github.com/vio137/wg-companion/actions/runs/42664639546">Windows test evidence</a></p></div>
 </section>
-
 <section class="sec" id="limits">
   <h2>What it does not do</h2>
   <p class="sub">Plain limits, so you can decide.</p>
   <div class="grid">
-    <article class="card glass tilt"><h3>Not run on Windows yet</h3><p>Tests so far ran on Linux: real Chromium, a local WireGuard peer, HTTP and DNS through the tunnel, crash blocking and reconnect. The Windows build is cross-compiled only.</p></article>
+    <article class="card glass tilt"><h3>Windows checks, not desktop proof</h3><p>Real Windows CI passed DPAPI, service start/status/stop, pipe-denial and tunnel HTTP/DNS tests. Installer welcome/license screens were inspected. Interactive installation/removal, alternate-admin UAC, tray behavior and non-admin Windows Chrome end-to-end remain unverified.</p></article>
     <article class="card glass tilt"><h3>TCP only</h3><p>Regular browsing over TCP. No arbitrary UDP or SOCKS5 UDP. QUIC/HTTP3 behavior is not exhaustively verified. Incognito is unsupported.</p></article>
     <article class="card glass tilt"><h3>No guarantees</h3><p>No leak-proof claim or speed promise. No system-wide kill switch. Endpoint hostname DNS uses your normal network to bootstrap the tunnel. WebRTC, QUIC and IPv6 are not fully packet-verified.</p></article>
     <article class="card glass tilt"><h3>Your peer, your trust</h3><p>Traffic goes where your config says. Other apps keep their own network path. Any local user can use the loopback SOCKS proxy while it is active. No analytics on this site.</p></article>
@@ -249,7 +240,7 @@ code{overflow-wrap:anywhere}.stage-ctl .btn{flex-shrink:0}.state-text{flex:1;min
 
 <section class="sec" id="recovery">
   <h2>Something not working?</h2>
-  <p class="sub">Choose what you see. These steps are for v0.1.0-preview. They do not change your computer from this website.</p>
+  <p class="sub">Choose what you see. These steps are for v0.2.0-preview. They do not change your computer from this website.</p>
   <div class="recovery glass">
     <label for="issue">What happened?</label>
     <select id="issue">
@@ -266,8 +257,8 @@ code{overflow-wrap:anywhere}.stage-ctl .btn{flex-shrink:0}.state-text{flex:1;min
 <section class="sec" id="faq">
   <h2>Questions</h2>
   <div class="faq">
-    <details class="glass"><summary>Do I need administrator rights?</summary><p>Not for the current preview installer, which is per-user. The planned Windows service will need one approval to register.</p></details>
-    <details class="glass"><summary>Is there a Windows installer or background service?</summary><p>Not yet. Both are under development and will be announced here only after they are built and checked.</p></details>
+    <details class="glass"><summary>Do I need administrator rights?</summary><p>Yes. The v0.2.0 installer requires administrator approval to register the service. Run it from the intended user's normal interactive desktop. Alternate-admin UAC targeting remains unverified.</p></details>
+    <details class="glass"><summary>Is there a Windows installer or background service?</summary><p>Yes, in v0.2.0-preview. Service tests passed on Windows CI, but the interactive installer/uninstaller and desktop behavior have not been verified. This is unsigned preview software.</p></details>
     <details class="glass"><summary>Does it work with Edge, Firefox or Brave?</summary><p>Only Chrome has been built for. Others are untested.</p></details>
     <details class="glass"><summary>Where is my config stored?</summary><p>On your machine, in your user profile. The project runs no server that receives it.</p></details>
   </div>
@@ -276,7 +267,7 @@ code{overflow-wrap:anywhere}.stage-ctl .btn{flex-shrink:0}.state-text{flex:1;min
 
 <footer class="foot">
   <p>WireGuard Companion preview. An independent project, not the official WireGuard client.</p>
-  <p>Site last built for preview v0.1.0.</p>
+  <p>Site guide: v0.2.0-preview. The older v0.1.0 ZIP remains unchanged on its release page.</p>
 </footer>
 
 <div class="toast glass" id="toast" role="status" aria-live="polite"></div>
@@ -409,9 +400,9 @@ $$('.copy').forEach(b=>b.addEventListener('click',async()=>{
 /* Keep recovery advice scoped to the shipped preview; never alter user settings here. */
 const recovery={
   blocked:['Turn off the extension tunnel','Open the popup and choose <strong>Turn off</strong>. This clears this extension\'s proxy/privacy overrides. If the popup is unavailable, disable or remove the extension in <code>chrome://extensions</code>. Do not change or delete an organization\'s proxy policy. Other VPNs or policies may still apply.'],
-  peer:['A ready device is not a connected peer','The preview only says Connected after a WireGuard handshake. Waiting for peer means that handshake is not complete. Check your supplied endpoint and profile with the peer operator. No public Internet or Windows runtime test is claimed for this build. A handshake alone is not proof that every request works.'],
-  security:['Keep Windows security enabled','The preview is unsigned. Do not disable SmartScreen, antivirus or organization policy to run it. If your policy blocks it, stop that installation and report what it says. A signed or independently verified Windows build is not available here yet.'],
-  remove:['Turn off, remove, then uninstall','Choose <strong>Turn off</strong> in the popup, remove the extension from <code>chrome://extensions</code>, close Chrome, then run <code>Uninstall.cmd</code>. Encrypted profiles remain under <code>%APPDATA%\\wg-companion\\configs</code> deliberately. Delete that folder only if you also want to erase saved profiles. Original imported files stay where you put them.']
+  peer:['A ready device is not a connected peer','The preview only says Connected after a WireGuard handshake. Waiting for peer means that handshake is not complete. Check your supplied endpoint and profile with the peer operator. Windows service/tunnel tests passed, but desktop Chrome routing and broader leaks remain unverified. A handshake alone is not proof that every request works.'],
+  security:['Keep Windows security enabled','The preview is unsigned. Do not disable SmartScreen, antivirus or organization policy to run it. If your policy blocks it, stop that installation and report what it says. The installer is unsigned and its interactive operation remains unverified.'],
+  remove:['Turn off, remove, then uninstall','Choose <strong>Turn off</strong> in the popup, remove the extension from <code>chrome://extensions</code>, quit the tray, then uninstall from Windows Apps. Encrypted profiles remain under <code>%APPDATA%\\wg-companion\\configs</code> deliberately. Delete that folder only if you also want to erase saved profiles. Original imported files stay where you put them.']
 };
 $('#issue').addEventListener('change',e=>{const d=recovery[e.target.value];$('#recoveryAnswer').innerHTML=d?`<h3>${d[0]}</h3><p>${d[1]}</p>`:'<p>Select a symptom to see the matching next step.</p>';blip(460,.08)});
 
