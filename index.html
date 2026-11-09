@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WireGuard Companion - a WireGuard tunnel for Chrome on Windows</title>
+<meta name="description" content="WireGuard Companion routes your regular Chrome browser traffic through a userspace WireGuard tunnel on Windows. Preview build. How it works, how to install, and what it does not do.">
+<meta name="theme-color" content="#070b16">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='12' fill='none' stroke='%2345e0c8' stroke-width='4'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%2345e0c8'/%3E%3C/svg%3E">
+<style>
+:root{--bg:#070b16;--ink:#eaf1ff;--mut:#9fb0cf;--a:#45e0c8;--b:#8b7bff;--warn:#ffb86b;--bad:#ff6b8a;
+--glass:rgba(255,255,255,.06);--edge:rgba(255,255,255,.14);--r:20px;
+--font:ui-sans-serif,system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;--mono:ui-monospace,"Cascadia Mono",Consolas,monospace}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+body{margin:0;background:radial-gradient(1200px 700px at 80% -10%,#1a2350 0,transparent 60%),radial-gradient(900px 600px at -10% 30%,#0b3a46 0,transparent 55%),var(--bg);color:var(--ink);font:16px/1.6 var(--font);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+#field{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+main,.foot,.nav{position:relative;z-index:1}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.skip{position:absolute;left:-999px;top:8px;background:#fff;color:#000;padding:8px 12px;border-radius:8px;z-index:99}
+.skip:focus{left:8px}
+:focus-visible{outline:2px solid var(--a);outline-offset:3px;border-radius:8px}
+.glass{background:var(--glass);border:1px solid var(--edge);border-radius:var(--r);
+backdrop-filter:blur(18px) saturate(150%);-webkit-backdrop-filter:blur(18px) saturate(150%);
+box-shadow:0 10px 40px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.18),inset 0 0 0 1px rgba(255,255,255,.02)}
+@supports not (backdrop-filter:blur(1px)){.glass{background:rgba(20,28,52,.92)}}
+.nav{position:sticky;top:12px;margin:12px auto 0;width:min(1120px,calc(100% - 24px));display:flex;align-items:center;gap:16px;padding:10px 16px;border-radius:999px;z-index:20}
+.nav nav{display:flex;gap:4px;margin-left:auto}
+.nav nav a{color:var(--mut);text-decoration:none;padding:6px 12px;border-radius:999px;transition:background .2s,color .2s}
+.nav nav a:hover{color:var(--ink);background:rgba(255,255,255,.08)}
+.brand{display:flex;align-items:center;gap:10px;color:var(--ink);text-decoration:none;font-weight:650;letter-spacing:.2px}
+.mark{width:26px;height:26px}.m-ring{fill:none;stroke:var(--a);stroke-width:4}.m-dot{fill:var(--a)}
+.brand:hover .m-dot{transform-origin:center;animation:pop .5s cubic-bezier(.3,1.8,.5,1)}
+@keyframes pop{0%{transform:scale(.4)}100%{transform:scale(1)}}
+.snd{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.06);border:1px solid var(--edge);color:var(--mut);border-radius:999px;padding:6px 12px;cursor:pointer;font:inherit;font-size:13px}
+.snd svg{width:16px;height:16px;fill:currentColor;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;fill-opacity:.9}.snd .w{fill:none;opacity:.2}
+.snd[aria-pressed=true]{color:var(--a);border-color:var(--a)}.snd[aria-pressed=true] .w{opacity:1}
+section{width:min(1120px,calc(100% - 32px));margin:0 auto}
+.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center;min-height:calc(100svh - 80px);padding:48px 0}
+h1{font-size:clamp(2.1rem,5.2vw,4rem);line-height:1.05;margin:.3em 0;letter-spacing:-.02em}
+.grad{background:linear-gradient(90deg,var(--a),var(--b));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{font-size:1.15rem;color:var(--mut);max-width:34em}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--mut);margin:0;padding:6px 12px;border:1px solid var(--edge);border-radius:999px;background:rgba(255,255,255,.04)}
+.pip{width:8px;height:8px;border-radius:50%;background:var(--warn);display:inline-block}
+.cta{display:flex;gap:12px;flex-wrap:wrap;margin:28px 0 12px}
+.btn{display:inline-block;border:1px solid var(--edge);color:var(--ink);text-decoration:none;padding:12px 22px;border-radius:14px;font:inherit;font-weight:600;cursor:pointer;background:rgba(255,255,255,.06);transition:transform .25s cubic-bezier(.3,1.6,.5,1),box-shadow .25s,background .2s;will-change:transform}
+.btn:hover{background:rgba(255,255,255,.12)}.btn:active{transform:scale(.96)!important}
+.btn.primary{background:linear-gradient(135deg,var(--a),#2fb7ff 60%,var(--b));color:#04121a;border-color:transparent;box-shadow:0 8px 30px rgba(69,224,200,.28)}
+.btn.primary:hover{box-shadow:0 12px 40px rgba(69,224,200,.45);background:linear-gradient(135deg,var(--a),#2fb7ff 60%,var(--b))}
+.btn.small{padding:8px 14px;font-size:14px;border-radius:10px}
+.fine{font-size:13px;color:var(--mut)}.fine a{color:var(--a)}
+.hero-stage{padding:16px;transform-style:preserve-3d;transition:transform .25s ease-out}
+.stage-top{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--mut);padding:2px 6px 8px}
+.dots i{display:inline-block;width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.2);margin-right:5px}
+.flow{width:100%;height:auto;display:block}
+.node circle{fill:rgba(255,255,255,.07);stroke:var(--edge);stroke-width:1.5;transition:stroke .3s,fill .3s}
+.node text{fill:var(--mut);font-size:13px;font-family:var(--font)}
+.node.on circle{stroke:var(--a);fill:rgba(69,224,200,.18)}
+.node.on text{fill:var(--ink)}
+.stage-ctl{display:flex;align-items:center;gap:12px;padding:6px}.hint{font-size:12px;color:var(--mut)}
+.sec{padding:72px 0 8px}
+h2{font-size:clamp(1.6rem,3.2vw,2.4rem);margin:0 0 6px;letter-spacing:-.01em}
+.sub{color:var(--mut);max-width:44em;margin:0 0 24px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.tab{background:rgba(255,255,255,.05);border:1px solid var(--edge);color:var(--mut);padding:9px 16px;border-radius:999px;font:inherit;cursor:pointer;transition:all .2s}
+.tab[aria-selected=true]{color:#04121a;background:var(--a);border-color:var(--a)}
+.panel{padding:26px;min-height:150px}
+.panel h3{margin:0 0 8px}.panel p{margin:.4em 0;color:var(--mut)}
+.panel .in{animation:rise .35s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.states{padding:24px}
+.state-picker{display:flex;gap:8px;flex-wrap:wrap}
+.state-picker button{background:rgba(255,255,255,.05);border:1px solid var(--edge);color:var(--mut);padding:8px 14px;border-radius:999px;font:inherit;cursor:pointer}
+.state-picker button[aria-checked=true]{color:var(--ink);border-color:var(--c,var(--a));box-shadow:0 0 0 3px color-mix(in srgb,var(--c,var(--a)) 25%,transparent)}
+.state-view{display:flex;align-items:center;gap:24px;margin:22px 0 8px;flex-wrap:wrap}
+.statusicon{width:120px;height:120px;--c:#7d8aa6}
+.statusicon svg{width:100%;height:100%;overflow:visible}
+.statusicon .ring{fill:rgba(255,255,255,.04);stroke:var(--c);stroke-width:5;transition:stroke .4s}
+.statusicon .arc{fill:none;stroke:var(--c);stroke-width:5;stroke-linecap:round;opacity:0;transform-origin:48px 48px}
+.statusicon .glyph{stroke:var(--c);fill:none;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;transition:stroke .4s}
+.statusicon[data-state=connecting] .arc{opacity:1;animation:spin 1s linear infinite}
+.statusicon[data-state=connected] .ring{animation:glow 1.2s ease-out 1}
+.statusicon[data-state=blocked] svg,.statusicon[data-state=error] svg{animation:shake .5s 1}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes glow{0%{filter:drop-shadow(0 0 0 var(--c))}40%{filter:drop-shadow(0 0 16px var(--c))}100%{filter:drop-shadow(0 0 4px var(--c))}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+.state-text strong{display:block;font-size:1.4rem}.state-text span{color:var(--mut)}
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.step{display:flex;gap:16px;padding:18px 20px;align-items:flex-start}
+.step h3{margin:0 0 4px;font-size:1.05rem}.step p{margin:.2em 0;color:var(--mut)}
+.num{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:700;color:#04121a;background:linear-gradient(135deg,var(--a),var(--b))}
+code{font-family:var(--mono);font-size:.9em;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:6px}
+.copy{margin-top:8px;background:rgba(255,255,255,.06);border:1px solid var(--edge);color:var(--ink);padding:6px 12px;border-radius:10px;font:inherit;font-size:13px;cursor:pointer}
+.copy:hover{background:rgba(255,255,255,.12)}
+.dl{display:flex;gap:24px;justify-content:space-between;align-items:center;padding:26px;flex-wrap:wrap}
+.dl h3{margin:0 0 6px}.dl p{margin:.3em 0;color:var(--mut)}
+.tag{font-size:12px;font-weight:600;color:var(--warn);border:1px solid var(--warn);border-radius:999px;padding:2px 8px;vertical-align:middle}
+.warn{border-left:3px solid var(--warn);padding-left:12px}
+.dl-btns{display:flex;gap:12px;flex-wrap:wrap}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.card{padding:22px;transform-style:preserve-3d;transition:transform .25s ease-out}
+.card h3{margin:0 0 6px}.card p{margin:0;color:var(--mut)}
+.faq{display:grid;gap:10px}
+.faq details{padding:14px 18px}.faq summary{cursor:pointer;font-weight:600}.faq p{color:var(--mut);margin:.6em 0 0}
+.foot{width:min(1120px,calc(100% - 32px));margin:72px auto 32px;color:var(--mut);font-size:13px;text-align:center}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,40px);opacity:0;padding:10px 18px;border-radius:999px;z-index:50;transition:all .35s cubic-bezier(.3,1.5,.5,1);pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.js .reveal{opacity:0;transform:translateY(18px);transition:opacity .6s,transform .6s cubic-bezier(.2,.9,.3,1.1)}
+.js .reveal.in{opacity:1;transform:none}
+@media (max-width:860px){.hero{grid-template-columns:1fr;min-height:0}.nav nav a:not(:last-child){display:none}.nav nav{margin-left:auto}}
+@media (max-width:520px){.nav nav{display:none}.snd{margin-left:auto}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.js .reveal{opacity:1;transform:none}}
+body.rm.js .reveal{opacity:1;transform:none}
+
+code{overflow-wrap:anywhere}.stage-ctl .btn{flex-shrink:0}.state-text{flex:1;min-width:180px}@media(max-width:520px){.stage-ctl{flex-wrap:wrap}.brand{font-size:14px}.snd{padding:6px 10px}.hero{gap:20px;padding-top:32px}}
+</style>
+</head>
+<body>
+<canvas id="field" aria-hidden="true"></canvas>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav glass" id="nav">
+  <a class="brand" href="#top" aria-label="WireGuard Companion home">
+    <svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><circle class="m-ring" cx="16" cy="16" r="12"/><circle class="m-dot" cx="16" cy="16" r="4"/></svg>
+    <span>WireGuard Companion</span>
+  </a>
+  <nav aria-label="Sections">
+    <a href="#how">How it works</a>
+    <a href="#states">Status</a>
+    <a href="#install">Install</a>
+    <a href="#limits">Limits</a>
+  </nav>
+  <button class="snd" id="snd" aria-pressed="false" title="Optional interface sounds, off by default">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path class="w" d="M16 9a4 4 0 010 6M18.5 6.5a8 8 0 010 11"/></svg>
+    <span class="sr">Sound</span><span id="sndlbl">off</span>
+  </button>
+</header>
+
+<main id="main">
+<section class="hero" id="top">
+  <div class="hero-copy">
+    <p class="eyebrow"><span class="pip" id="heroPip"></span> Preview build v0.1.0 - Windows x64</p>
+    <h1>Your Chrome traffic,<br><span class="grad">through your own WireGuard tunnel.</span></h1>
+    <p class="lead">A small Windows companion and a Chrome extension. The companion runs a userspace WireGuard client. The extension sends your normal browser tabs through it. No kernel driver, no remote relay of ours.</p>
+    <div class="cta">
+      <a class="btn primary mag" href="#download" id="ctaDl">Get the preview</a>
+      <a class="btn ghost mag" href="#how">See how it works</a>
+    </div>
+    <p class="fine">Preview. Tested on Linux with a local WireGuard peer; not yet run on real Windows. <a href="#limits">Read the limits</a>.</p>
+  </div>
+
+  <div class="hero-stage glass tilt" id="stage" aria-label="Interactive tunnel illustration">
+    <div class="stage-top">
+      <span class="dots"><i></i><i></i><i></i></span>
+      <span class="stage-title">Illustration - not live data</span>
+    </div>
+    <svg class="flow" viewBox="0 0 520 260" role="img" aria-label="Chrome sends traffic to the extension, then the local companion, then your WireGuard peer">
+      <defs>
+        <linearGradient id="g1" x1="0" x2="1"><stop offset="0" stop-color="#45e0c8"/><stop offset="1" stop-color="#8b7bff"/></linearGradient>
+      </defs>
+      <path id="route" d="M60 130 C110 130,140 105,190 105 S290 130,330 130 S430 130,470 130" fill="none" stroke="url(#g1)" stroke-width="2" stroke-dasharray="3 7" opacity=".6"/>
+      <g class="node" data-n="0"><circle cx="60" cy="130" r="26"/><text x="60" y="176" text-anchor="middle">Chrome</text></g>
+      <g class="node" data-n="1"><circle cx="190" cy="105" r="26"/><text x="190" y="151" text-anchor="middle">Extension</text></g>
+      <g class="node" data-n="2"><circle cx="330" cy="130" r="26"/><text x="330" y="176" text-anchor="middle">Companion</text></g>
+      <g class="node" data-n="3"><circle cx="470" cy="130" r="26"/><text x="470" y="176" text-anchor="middle">Your peer</text></g>
+      <circle id="pkt" r="6" fill="#fff"/>
+    </svg>
+    <div class="stage-ctl">
+      <button class="btn small" id="sendPkt">Send a packet</button>
+      <span class="hint">Move over the dots. They spring back.</span>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="how">
+  <h2>How it works</h2>
+  <p class="sub">Four parts, each with one job. Select one.</p>
+  <div class="how">
+    <div class="tabs" role="tablist" aria-label="Parts">
+      <button role="tab" aria-selected="true" data-i="0" class="tab">Chrome</button>
+      <button role="tab" aria-selected="false" data-i="1" class="tab">Extension</button>
+      <button role="tab" aria-selected="false" data-i="2" class="tab">Companion</button>
+      <button role="tab" aria-selected="false" data-i="3" class="tab">Your WireGuard peer</button>
+    </div>
+    <div class="panel glass" id="howPanel" role="tabpanel" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="sec" id="states">
+  <h2>Status you can read at a glance</h2>
+  <p class="sub">The next Windows app and extension revision is being built with state-driven icons. Explore the proposed visual language here. These are illustrative states, not a view of your connection or a feature claim for the current ZIP.</p>
+  <div class="states glass">
+    <div class="state-picker" role="radiogroup" aria-label="Preview a status state" id="picker"></div>
+    <div class="state-view">
+      <div class="statusicon" id="sIcon" data-state="disconnected" aria-hidden="true">
+        <svg viewBox="0 0 96 96">
+          <circle class="ring" cx="48" cy="48" r="38"/>
+          <path class="arc" d="M48 10a38 38 0 0 1 38 38"/>
+          <g class="glyph"></g>
+        </svg>
+      </div>
+      <div class="state-text"><strong id="sName">Disconnected</strong><span id="sDesc"></span></div>
+    </div>
+    <p class="fine">Demo only. A running process is not proof of a working tunnel. This website cannot read or control your tunnel. Reduced-motion settings turn the animation into a static icon.</p>
+  </div>
+</section>
+
+<section class="sec" id="install">
+  <h2>Install the preview</h2>
+  <p class="sub">Current preview uses a script installer and an unpacked extension. A proper Windows installer and background service are in development and are not available yet.</p>
+  <ol class="steps" id="steps">
+    <li class="step glass"><span class="num">1</span><div><h3>Get the ZIP</h3><p>Download <code>WireGuard-Companion-Windows-x64-preview.zip</code> from the release page, then extract it to a folder you will keep.</p></div></li>
+    <li class="step glass"><span class="num">2</span><div><h3>Run the companion installer</h3><p>Open the extracted folder and run <code>Install.cmd</code>. Follow the README included in the ZIP for the required order and any extension ID registration.</p></div></li>
+    <li class="step glass"><span class="num">3</span><div><h3>Load the extension in Chrome</h3><p>Open <code>chrome://extensions</code>, turn on <strong>Developer mode</strong>, choose <strong>Load unpacked</strong>, and select the <code>extension</code> folder from the ZIP.</p>
+      <button class="copy" data-copy="chrome://extensions">Copy chrome://extensions</button></div></li>
+    <li class="step glass"><span class="num">4</span><div><h3>Add your own WireGuard config</h3><p>Use a config for a peer you control or trust. Follow the included README to import it and connect. Only a regular Chrome profile is in scope; incognito is not.</p></div></li>
+  </ol>
+  <p class="fine">Step details follow the README shipped in the ZIP. If something differs, the README is right.</p>
+</section>
+
+<section class="sec" id="download">
+  <h2>Download</h2>
+  <div class="dl glass">
+    <div>
+      <h3>Preview v0.1.0 <span class="tag">pre-release</span></h3>
+      <p>Windows x64 ZIP: companion, Chrome extension, source archive.</p>
+      <p class="warn"><strong>Access note.</strong> The repository is currently private, so these links work only when you are signed in to GitHub with access. A public download is not set up yet.</p>
+    </div>
+    <div class="dl-btns">
+      <a class="btn primary mag" href="https://github.com/vio137/wg-companion/releases/download/v0.1.0-preview/WireGuard-Companion-Windows-x64-preview.zip" rel="noopener">Download ZIP</a>
+      <a class="btn ghost mag" href="https://github.com/vio137/wg-companion/releases/tag/v0.1.0-preview" rel="noopener">Release notes</a>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="limits">
+  <h2>What it does not do</h2>
+  <p class="sub">Plain limits, so you can decide.</p>
+  <div class="grid">
+    <article class="card glass tilt"><h3>Not run on Windows yet</h3><p>Tests so far ran on Linux: real Chromium, a local WireGuard peer, HTTP and DNS through the tunnel, crash blocking and reconnect. The Windows build is cross-compiled only.</p></article>
+    <article class="card glass tilt"><h3>TCP only</h3><p>Regular browsing over TCP. No arbitrary UDP or QUIC, and incognito windows are not routed.</p></article>
+    <article class="card glass tilt"><h3>No guarantees</h3><p>No leak-proof claim and no speed promise. Measure on your own setup.</p></article>
+    <article class="card glass tilt"><h3>Your peer, your trust</h3><p>Traffic goes where your config says. There is no relay run by this project, and no analytics on this site.</p></article>
+  </div>
+</section>
+
+<section class="sec" id="faq">
+  <h2>Questions</h2>
+  <div class="faq">
+    <details class="glass"><summary>Do I need administrator rights?</summary><p>Not for the current preview installer, which is per-user. The planned Windows service will need one approval to register.</p></details>
+    <details class="glass"><summary>Is there a Windows installer or background service?</summary><p>Not yet. Both are under development and will be announced here only after they are built and checked.</p></details>
+    <details class="glass"><summary>Does it work with Edge, Firefox or Brave?</summary><p>Only Chrome has been built for. Others are untested.</p></details>
+    <details class="glass"><summary>Where is my config stored?</summary><p>On your machine, in your user profile. The project runs no server that receives it.</p></details>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <p>WireGuard Companion preview. An independent project, not the official WireGuard client.</p>
+  <p>Site last built for preview v0.1.0.</p>
+</footer>
+
+<div class="toast glass" id="toast" role="status" aria-live="polite"></div>
+<script>
+(()=>{
+'use strict';
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+document.documentElement.classList.add('js');document.body.classList.add('js');
+const mq=matchMedia('(prefers-reduced-motion: reduce)');
+let RM=mq.matches; mq.addEventListener('change',e=>{RM=e.matches;document.body.classList.toggle('rm',RM);draw()});
+document.body.classList.toggle('rm',RM);
+
+/* ---- opt-in sound (off by default) ---- */
+let actx=null,soundOn=false;
+function blip(f=520,d=.08,type='sine',v=.04){
+  if(!soundOn)return;
+  try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+  const o=actx.createOscillator(),g=actx.createGain();o.type=type;o.frequency.value=f;
+  g.gain.setValueAtTime(v,actx.currentTime);g.gain.exponentialRampToValueAtTime(.0001,actx.currentTime+d);
+  o.connect(g).connect(actx.destination);o.start();o.stop(actx.currentTime+d);}catch(e){}
+}
+const snd=$('#snd');
+snd.addEventListener('click',()=>{soundOn=!soundOn;snd.setAttribute('aria-pressed',soundOn);$('#sndlbl').textContent=soundOn?'on':'off';blip(660,.12)});
+function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('show'),1800)}
+
+/* ---- physics dot field: springs back to home, repelled by pointer. Runs only while visible and moving. ---- */
+const cv=$('#field'),cx=cv.getContext('2d');
+let W=0,H=0,dots=[],mouse={x:-999,y:-999},raf=0,settled=false,dpr=1;
+function layout(){
+  dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;cx.setTransform(dpr,0,0,dpr,0,0);
+  const gap=W<700?46:38;dots=[];
+  for(let y=gap/2;y<H;y+=gap)for(let x=gap/2;x<W;x+=gap)dots.push({hx:x,hy:y,x,y,vx:0,vy:0});
+  settled=false;kick();
+}
+function step(){
+  let moving=false;const R=120;
+  for(const d of dots){
+    const dx=d.x-mouse.x,dy=d.y-mouse.y,dist=Math.hypot(dx,dy);
+    if(dist<R&&dist>0){const f=(1-dist/R)*2.2;d.vx+=dx/dist*f;d.vy+=dy/dist*f}
+    d.vx+=(d.hx-d.x)*.06;d.vy+=(d.hy-d.y)*.06;d.vx*=.84;d.vy*=.84;d.x+=d.vx;d.y+=d.vy;
+    if(Math.abs(d.vx)>.02||Math.abs(d.vy)>.02||Math.abs(d.hx-d.x)>.05||Math.abs(d.hy-d.y)>.05)moving=true;
+  }
+  return moving;
+}
+function draw(){
+  cx.clearRect(0,0,W,H);
+  for(const d of dots){
+    const off=Math.hypot(d.x-d.hx,d.y-d.hy),t=Math.min(off/30,1);
+    cx.fillStyle=t>.02?`rgba(${69+70*t|0},${224-100*t|0},${200+55*t|0},${.35+.5*t})`:'rgba(159,176,207,.22)';
+    cx.beginPath();cx.arc(d.x,d.y,1.4+t*1.8,0,6.283);cx.fill();
+  }
+}
+function loop(){raf=0;if(document.hidden||RM)return;const m=step();draw();if(m&&!document.hidden)raf=requestAnimationFrame(loop);else settled=!m}
+function kick(){if(!raf&&!RM){raf=requestAnimationFrame(loop)}else if(RM)draw()}
+addEventListener('pointermove',e=>{mouse.x=e.clientX;mouse.y=e.clientY;clearTimeout(mouse.t);mouse.t=setTimeout(()=>{mouse.x=mouse.y=-999;kick()},120);kick()},{passive:true});
+addEventListener('pointerleave',()=>{mouse.x=mouse.y=-999;kick()});
+addEventListener('resize',()=>{clearTimeout(layout.t);layout.t=setTimeout(layout,150)});
+document.addEventListener('visibilitychange',kick);
+layout();
+
+/* ---- tilt + magnetic (spring via CSS transition), pointer-only, no idle loop ---- */
+if(!RM&&matchMedia('(hover:hover)').matches){
+  $$('.tilt').forEach(el=>{
+    el.addEventListener('pointermove',e=>{const r=el.getBoundingClientRect(),px=(e.clientX-r.left)/r.width-.5,py=(e.clientY-r.top)/r.height-.5;
+      if(RM)return;el.style.transform=`perspective(900px) rotateY(${px*7}deg) rotateX(${-py*7}deg)`});
+    el.addEventListener('pointerleave',()=>el.style.transform='');
+  });
+  $$('.mag').forEach(el=>{
+    el.addEventListener('pointermove',e=>{const r=el.getBoundingClientRect();
+      if(RM)return;el.style.transform=`translate(${(e.clientX-r.left-r.width/2)*.18}px,${(e.clientY-r.top-r.height/2)*.25}px)`});
+    el.addEventListener('pointerleave',()=>el.style.transform='');
+  });
+}
+
+/* ---- hero packet animation (user triggered; one pass) ---- */
+const route=$('#route'),pkt=$('#pkt'),nodes=$$('.node'),nodePos=[];
+(function(){const L=route.getTotalLength();$$('.node circle').forEach(c=>{const cx0=+c.getAttribute('cx');let best=0,bd=1e9;for(let i=0;i<=200;i++){const p=route.getPointAtLength(L*i/200);const d=Math.abs(p.x-cx0);if(d<bd){bd=d;best=i/200}}nodePos.push(best)})})();
+let pk=false;
+function place(t){const L=route.getTotalLength(),p=route.getPointAtLength(L*t);pkt.setAttribute('cx',p.x);pkt.setAttribute('cy',p.y)}
+place(0);pkt.style.opacity=0;
+function send(){
+  if(pk)return;pk=true;nodes.forEach(n=>n.classList.remove('on'));
+  if(RM){nodes.forEach(n=>n.classList.add('on'));toast('Packet delivered (illustration)');pk=false;return}
+  pkt.style.opacity=1;const dur=2200,t0=performance.now();let hit=-1;
+  (function f(now){const t=Math.min((now-t0)/dur,1),e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;place(e);
+    nodePos.forEach((p,i)=>{if(e>=p-.01&&i>hit){hit=i;nodes[i].classList.add('on');blip(440+i*140,.09)}});
+    if(t<1)requestAnimationFrame(f);else{pk=false;pkt.style.opacity=0;toast('Packet delivered (illustration)')}})(t0);
+}
+$('#sendPkt').addEventListener('click',send);
+
+/* ---- how it works ---- */
+const parts=[
+['Chrome','Your regular Chrome profile. Pages load as usual. The extension decides which requests go to the tunnel; nothing is changed in the pages themselves.'],
+['Extension','Sets the browser proxy and shows the tunnel state in the toolbar icon. It talks to the local companion on your machine, not to any server of ours. Loaded unpacked in Developer mode.'],
+['Companion','A small Windows program with a userspace WireGuard client. No kernel driver. It opens a tunnel to your peer and forwards the extension\'s TCP connections and DNS through it.'],
+['Your WireGuard peer','The server or device you already run or trust, set by your own config. All tunnelled traffic leaves from there. This project operates no relay.']];
+const hp=$('#howPanel');
+function showPart(i){hp.setAttribute('aria-labelledby','part-'+i);hp.innerHTML=`<div class="in"><h3>${parts[i][0]}</h3><p>${parts[i][1]}</p></div>`;
+  $$('.tab').forEach((t,j)=>(t.setAttribute('aria-selected',j==i),t.tabIndex=j==i?0:-1));nodes.forEach((n,j)=>n.classList.toggle('on',j==i));blip(380+i*90,.07)}
+$$('.tab').forEach((t,i)=>{t.id='part-'+i;t.setAttribute('aria-controls','howPanel');t.addEventListener('click',()=>showPart(i));t.addEventListener('keydown',e=>{const k=e.key;if(!['ArrowLeft','ArrowRight','Home','End'].includes(k))return;e.preventDefault();const n=k==='Home'?0:k==='End'?3:(i+(k==='ArrowRight'?1:3))%4;$$('.tab')[n].focus();showPart(n)})});
+showPart(0);nodes.forEach(n=>n.classList.remove('on'));
+
+/* ---- status states ---- */
+const S=[
+['disconnected','Disconnected','Browser traffic goes out normally.','#7d8aa6','<path d="M34 34l28 28M62 34L34 62"/>'],
+['connecting','Connecting','Handshake with your peer is in progress.','#45a9ff','<path d="M40 48h16"/>'],
+['connected','Connected','Handshake done. Tunnel is passing traffic.','#45e0c8','<path d="M32 50l11 11 22-24"/>'],
+['blocked','Blocked','Tunnel down. Browser traffic is held rather than sent in the clear.','#ffb86b','<path d="M48 30v22M48 64v2"/>'],
+['error','Error','Something failed. The popup shows the reason.','#ff6b8a','<path d="M48 30v22M48 64v2"/>']];
+const pick=$('#picker'),ic=$('#sIcon');
+S.forEach((s,i)=>{const b=document.createElement('button');b.type='button';b.setAttribute('role','radio');b.setAttribute('aria-checked',i==0);b.textContent=s[1];b.style.setProperty('--c',s[3]);
+  b.addEventListener('click',()=>setState(i));b.addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End'].includes(e.key))return;e.preventDefault();const n=e.key==='Home'?0:e.key==='End'?4:(i+(['ArrowRight','ArrowDown'].includes(e.key)?1:4))%5;setState(n);pick.children[n].focus()});pick.appendChild(b)});
+let st=-1;
+function setState(i){
+  const s=S[i];ic.dataset.state=s[0];ic.style.setProperty('--c',s[3]);$('.glyph',ic).innerHTML=s[4];
+  $('#sName').textContent=s[1];$('#sDesc').textContent=s[2];
+  $$('button',pick).forEach((b,j)=>(b.setAttribute('aria-checked',j==i),b.tabIndex=j==i?0:-1));
+  blip(s[0]==='connected'?740:s[0]==='error'||s[0]==='blocked'?220:420,.1);
+  clearTimeout(setState.t);
+  if(s[0]==='connecting'&&!RM)setState.t=setTimeout(()=>ic.classList.add('still'),6000); // bound the spinner
+  ic.classList.remove('still');
+}
+setState(0);
+const sty=document.createElement('style');sty.textContent='.statusicon.still .arc{animation:none!important}';document.head.appendChild(sty);
+
+/* ---- copy buttons ---- */
+$$('.copy').forEach(b=>b.addEventListener('click',async()=>{
+  try{await navigator.clipboard.writeText(b.dataset.copy);toast('Copied. Paste it in a new Chrome tab.')}catch(e){toast('Select and copy: '+b.dataset.copy)}blip(600,.06)}));
+
+/* ---- reveal on scroll ---- */
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.12});
+$$('.sec').forEach(s=>{s.classList.add('reveal');io.observe(s)});
+})();
+</script>
+</body>
+</html>
